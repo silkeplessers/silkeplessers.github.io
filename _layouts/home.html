@@ -1,30 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site.title }}</title>
-    <link rel="stylesheet" href="/assets/style.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ site.title }}</title>
+        <link rel="stylesheet" href="/assets/style.css">
+        <script defer src="/assets/theme.js"></script>
 </head>
 <body>
-    <nav>
-    <a href="/">Home</a> |
-    <a href="/about.html">About</a>
-    </nav>
-    <main>
-    <h1>{{ page.title }}</h1>
-    <div>{{ content }}</div>
-    <h2>Latest Posts</h2>
-    <ul>
-        {% for post in site.posts %}
-        <li>
-            <a href="{{ post.url }}">{{ post.title }}</a> <small>{{ post.date | date: "%b %d, %Y" }}</small>
-        </li>
-        {% endfor %}
-    </ul>
-    </main>
-    <footer>
-    <p>&copy; {{ site.time | date: "%Y" }} Silke Plessers</p>
-    </footer>
+        <header class="site-header">
+            <div class="container">
+                <a class="brand" href="/">{{ site.title }}</a>
+                        <nav class="nav">
+                            <a href="/">Home</a>
+                            <a href="/blog.html">Blog</a>
+                            <a href="/about.html">About</a>
+                            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+                        </nav>
+            </div>
+        </header>
+
+        <main>
+            <section class="intro">
+                <h1>{{ page.title }}</h1>
+                <div class="intro-content">{{ content }}</div>
+            </section>
+
+            <section class="posts">
+                <h2>Latest Posts</h2>
+                <ul class="post-list">
+                    {% for post in site.posts %}
+                        <li class="post-card">
+                            <a class="post-title" href="{{ post.url }}">{{ post.title }}</a>
+                                            <div class="post-meta">{{ post.date | date: "%b %d, %Y" }}</div>
+                                            {% if post.categories and post.categories.size > 0 %}
+                                            <div class="chips">
+                                                {% for cat in post.categories %}
+                                                    <span class="chip">{{ cat }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                            <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 220 }}</p>
+                            <a class="btn" href="{{ post.url }}">Read more →</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <p>&copy; {{ site.time | date: "%Y" }} Silke Plessers</p>
+        </footer>
 </body>
 </html>

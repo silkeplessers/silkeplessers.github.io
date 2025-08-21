@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title }} - {{ site.title }}</title>
-    <link rel="stylesheet" href="/assets/style.css">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ page.title }} - {{ site.title }}</title>
+        <link rel="stylesheet" href="/assets/style.css">
+        <script defer src="/assets/theme.js"></script>
 </head>
 <body>
-    <nav>
-    <a href="/">Home</a> |
-    <a href="/about.html">About</a>
-    </nav>
-    <main>
-    <h1>{{ page.title }}</h1>
-    <p><small>{{ page.date | date: "%B %d, %Y" }}</small></p>
-    <div>{{ content }}</div>
-    </main>
-    <footer>
-    <p>&copy; {{ site.time | date: "%Y" }} Silke Plessers</p>
-    </footer>
+        <header class="site-header">
+            <div class="container">
+                <a class="brand" href="/">{{ site.title }}</a>
+                        <nav class="nav">
+                            <a href="/">Home</a>
+                            <a href="/blog.html">Blog</a>
+                            <a href="/about.html">About</a>
+                            <button class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+                        </nav>
+            </div>
+        </header>
+        <main>
+            <article class="post">
+                <h1>{{ page.title }}</h1>
+                        <div class="post-meta">{{ page.date | date: "%B %d, %Y" }}</div>
+                        {% if page.categories and page.categories.size > 0 %}
+                        <div class="chips">
+                            {% for cat in page.categories %}
+                                <span class="chip">{{ cat }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                <div class="post-content">{{ content }}</div>
+            </article>
+        </main>
+        <footer class="site-footer">
+            <p>&copy; {{ site.time | date: "%Y" }} Silke Plessers</p>
+        </footer>
 </body>
 </html>

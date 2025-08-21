@@ -6,16 +6,14 @@ categories: GenAI Azure
 excerpt: "GenAI is transforming the tech world, but how do you operationalize it in Azure? This post introduces GenAIOps and the building blocks for scalable, production-ready GenAI applications."
 ---
 
-# From Hype to Reality: The Rise of GenAI and the Need for GenAIOps in Azure
-
 Generative AI has taken the tech world by storm, transforming how we build and interact with applications, automate workflows and deliver user experiences. From Copilots to content generators, autonomous agents, multi-agent ecosystems, AI-powered search and many more, the landscape of GenAI-powered solutions is expanding at an unprecedented pace and they are becoming increasingly more capable. 
 
 The pace of innovation is relentless: new models, techniques and tooling emerges weekly, creating pressure on teams to adopt a modular, flexible approach that enables them to pivot quickly, integrate new capabilities, and avoid architectural lock-in. 
 As a result, organizations are grappling with questions like:
--	How do we monitor and govern GenAI behaviour in production?
--	How do we manage the lifecycle of prompts, models, embeddings and other parameters?
--	How do we evaluate model performance?
--	How do we implement tracing, observability, and rollback mechanisms for GenAI workflows?
+- How do we monitor and govern GenAI behaviour in production?
+- How do we manage the lifecycle of prompts, models, embeddings and other parameters?
+- How do we evaluate model performance?
+- How do we implement tracing, observability, and rollback mechanisms for GenAI workflows?
 
 This is where GenAIOps comes into play - offering structure and best practices to streamline the development of GenAI applications. In this blogpost, we introduce the building blocks along with the Azure services that support the implementation of such a GenAIOps workflow. 
 
@@ -53,14 +51,12 @@ Once the index structure and vector database have been decided, we can begin the
 <div class="note">
 💡<b> Note</b>: Choosing an embedding model involves a trade-off between retrieval accuracy, latency, and costs. Larger models generally yield better semantic understanding and retrieval performance, but may result in higher latency, increased computational overhead, and larger storage requirements in your vector database.
 </div>
-</br>
 
 A critical step during ingestion is chunking: splitting documents into smaller, semantically meaningful units. Getting this right is essential for improving retrieval accuracy in vector search. The optimal chunking strategy often requires experimentation: chunks can be defined by character count, document structure (e.g., paragraphs, headers, tables), HTML tags (for web content), or even semantic boundaries. For code, it’s important to keep logical units like functions or classes together.
 
 <div class="note">
 ⚖️ <b>Trade-off</b>: Smaller chunks tend to be more specific, hence improving retrieval precision, but may lack sufficient context for the language model to generate coherent answers. Larger chunks offer richer context, but risk mixing unrelated topics, which can reduce search accuracy. Finding the right balance is key to building an effective RAG pipeline.
 </div>
-</br>
 
 Typically, this entire ingestion process is orchestrated via code, using tools that support automation and scalability. Common choices include Azure Machine Learning pipelines, Databricks workflows, or Azure Functions for event-driven execution. Depending on the architecture, other Azure services like Azure Data Factory or Logic Apps can also be used to coordinate data movement, transformation, and embedding. The goal is to build a repeatable and maintainable pipeline that can handle updates, scale with data volume, and integrate with downstream RAG components.
 
