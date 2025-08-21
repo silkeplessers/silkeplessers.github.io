@@ -48,7 +48,7 @@ At this stage, it’s important to carefully design your index structure. For Az
 
 With the core fields now being defined, next, it is useful to consider what metadata to include. Metadata not only enables contextual filtering and personalization, but also supports traceability: for example, storing the source URL, page number, or document ID helps users understand where the information came from. This is notably valuable in enterprise and compliance-focused scenarios, where sourcing and transparency matter.
 
-Once the index structure and vector database have been decided, we can begin the ingestion process. As shown in the diagram, we use AI Foundry to host the embedding model that will vectorize the cleaned text data. This could be an Azure OpenAI embedding model, or alternatives like Cohere or Hugging Face models such as sentence-transformers. For a comparison of model performance, check out the <a href=https://huggingface.co/spaces/mteb/leaderboard>MTEB leaderboard.</a>
+Once the index structure and vector database have been decided, we can begin the ingestion process. As shown in the diagram, we use AI Foundry to host the embedding model that will vectorize the cleaned text data. This could be an Azure OpenAI embedding model, or alternatives like Cohere or Hugging Face models such as sentence-transformers. For a comparison of model performance, check out the [MTEB leaderboard](https://huggingface.co/spaces/mteb/leaderboard).
 
 <div class="note">
 💡<b> Note</b>: Choosing an embedding model involves a trade-off between retrieval accuracy, latency, and costs. Larger models generally yield better semantic understanding and retrieval performance, but may result in higher latency, increased computational overhead, and larger storage requirements in your vector database.
@@ -146,7 +146,7 @@ They also support session management, particularly in chat-based interfaces, by 
 
 Additionally, these services facilitate (semantic) caching. By caching model responses and user queries, the system can reduce latency, improve throughput and lower operational costs - since previously generated answers can be reused without invoking the LLM again. Semantic caching goes a step further by recognizing similar queries and reusing previously generated responses, even if the input is not identical. 
 
-### <a href=https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities> API Management </a>
+## API Management
 
 Finally, once the web application has been deployed, it is typically placed behind Azure API Management (APIM) to provide a secure and scalable interface for interacting with backend services. APIM acts as a centralized gateway that abstracts the complexity of service endpoints and introduces a layer of governance and control.
 
