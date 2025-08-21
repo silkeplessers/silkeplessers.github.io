@@ -1,3 +1,11 @@
+---
+layout: post
+title: "From Hype to Reality: The Rise of GenAI and the Need for GenAIOps in Azure"
+date: 2025-08-21 17:00:00 +0200
+categories: GenAI Azure
+excerpt: "GenAI is transforming the tech world, but how do you operationalize it in Azure? This post introduces GenAIOps and the building blocks for scalable, production-ready GenAI applications."
+---
+
 # From Hype to Reality: The Rise of GenAI and the Need for GenAIOps in Azure
 
 Generative AI has taken the tech world by storm, transforming how we build and interact with applications, automate workflows and deliver user experiences. From Copilots to content generators, autonomous agents, multi-agent ecosystems, AI-powered search and many more, the landscape of GenAI-powered solutions is expanding at an unprecedented pace and they are becoming increasingly more capable. 
