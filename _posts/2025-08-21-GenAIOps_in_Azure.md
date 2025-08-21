@@ -142,7 +142,7 @@ They also support session management, particularly in chat-based interfaces, by 
 
 Additionally, these services facilitate (semantic) caching. By caching model responses and user queries, the system can reduce latency, improve throughput and lower operational costs - since previously generated answers can be reused without invoking the LLM again. Semantic caching goes a step further by recognizing similar queries and reusing previously generated responses, even if the input is not identical. 
 
-## API Management
+### API Management
 
 Finally, once the web application has been deployed, it is typically placed behind Azure API Management (APIM) to provide a secure and scalable interface for interacting with backend services. APIM acts as a centralized gateway that abstracts the complexity of service endpoints and introduces a layer of governance and control.
 
