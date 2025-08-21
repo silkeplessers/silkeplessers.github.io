@@ -1,0 +1,11 @@
+title: Architecting the future
+description: When inspiration strikes, it lands here. Eventually.
+baseurl: ""
+url: "https://silkeplessers.github.io"
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Build settings
+markdown: kramdown

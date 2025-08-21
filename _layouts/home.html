@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site.title }}</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a> |
+    <a href="/about.html">About</a>
+  </nav>
+  <main>
+    <h1>{{ page.title }}</h1>
+    <div>{{ content }}</div>
+    <h2>Latest Posts</h2>
+    <ul>
+      {% for post in site.posts %}
+        <li>
+          <a href="{{ post.url }}">{{ post.title }}</a> <small>{{ post.date | date: "%b %d, %Y" }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  </main>
+  <footer>
+    <p>&copy; {{ site.time | date: "%Y" }} Silke Plessers</p>
+  </footer>
+</body>
+</html>
