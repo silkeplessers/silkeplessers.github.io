@@ -9,3 +9,4 @@ plugins:
 
 # Build settings
 markdown: kramdown
+future: true

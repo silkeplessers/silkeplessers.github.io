@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "From Hype to Reality: The Rise of GenAI and the Need for GenAIOps in Azure"
-date: 2025-08-21 17:00:00 +0200
+date: 2025-08-21 10:00:00 +0000
 categories: GenAI Azure
 excerpt: "GenAI is transforming the tech world, but how do you operationalize it in Azure? This post introduces GenAIOps and the building blocks for scalable, production-ready GenAI applications."
 ---
