@@ -4,6 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{{ page.title }} - {{ site.title }}</title>
+        <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | truncate: 160 }}">
+        <meta name="keywords" content="{{ page.tags | join: ', ' }}, {{ page.categories | join: ', ' }}">
+        <meta name="author" content="{{ site.author | default: 'Silke Plessers' }}">
         <link rel="stylesheet" href="/assets/style.css">
         <script defer src="/assets/theme.js"></script>
 </head>
