@@ -11,3 +11,13 @@ plugins:
 # Build settings
 markdown: kramdown
 future: true
+
+kramdown:
+  auto_ids: true
+  smart_quotes: lsquo,rsquo,ldquo,rdquo
+  hard_wrap: false
+  parse_block_html: true
+
+# Prevent image compression
+image_compression:
+  quality: 100

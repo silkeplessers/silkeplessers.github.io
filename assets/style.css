@@ -137,4 +137,48 @@ img {
     height: auto;
     display: block;
     margin: 1em auto;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Image caption styling - italic text immediately after an image */
+img + em {
+    display: block;
+    text-align: center;
+    margin: 0.75em auto 2em;
+    font-size: 0.9em;
+    color: var(--muted);
+    font-style: italic;
+    padding: 0 1em;
+}
+
+[data-theme="dark"] img + em {
+    color: #9aa4b2;
+}
+
+/* Figure and caption styling for images */
+figure {
+    margin: 2em auto;
+    text-align: center;
+    max-width: 100%;
+}
+
+figure img {
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+figcaption {
+    margin-top: 0.75em;
+    font-size: 0.9em;
+    color: var(--muted);
+    font-style: italic;
+    padding: 0 1em;
+}
+
+[data-theme="dark"] figcaption {
+    color: #9aa4b2;
 }

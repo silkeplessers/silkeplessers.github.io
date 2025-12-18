@@ -18,9 +18,10 @@ As a result, organizations are grappling with questions like:
 
 This is where GenAIOps comes into play - offering structure and best practices to streamline the development of GenAI applications. In this blogpost, we introduce the building blocks along with the Azure services that support the implementation of such a GenAIOps workflow. 
 
-![high-level architecture with building blocks along with Azure Services and how they interconnect](/assets/images/genaiops.png)
- 
-Above high-level architecture illustrates how different Azure services can support the development, evaluation, and operationalization of GenAI applications. It provides a foundation for applying GenAIOps principles, which will be explored further in this post.
+![High-level architecture with building blocks along with Azure Services and how they interconnect](/assets/images/genaiops.jpg)
+*High-level architecture illustrating how different Azure services support the development, evaluation, and operationalization of GenAI applications*
+
+This architecture provides a foundation for applying GenAIOps principles, which will be explored further in this post.
 
 As you can see, there are many building blocks and depending on use case, you might need or not need them. Thinking about a RAG application, vector databases will be a crucial part of your application, but they might not be required in, for example, summarization, language translation or classification use cases.
 
