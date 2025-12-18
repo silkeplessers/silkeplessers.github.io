@@ -157,6 +157,24 @@ img {
 .img-small img,
 .img-medium img {
     width: 100%;
+    max-width: 100%;
+}
+
+/* Caption styling inside sized containers */
+.img-small em,
+.img-medium em {
+    display: block;
+    text-align: center;
+    margin: 0.75em auto 2em;
+    font-size: 0.9em;
+    color: var(--muted);
+    font-style: italic;
+    padding: 0 1em;
+}
+
+[data-theme="dark"] .img-small em,
+[data-theme="dark"] .img-medium em {
+    color: #9aa4b2;
 }
 
 /* Image caption styling - italic text immediately after an image */
