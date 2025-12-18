@@ -47,21 +47,33 @@ A critical component of Mixture-of-Experts architectures is the routing mechanis
 
 However, routing introduces several challenges. Without constraints, the router often converges to favoring a small subset of experts, leading to routing imbalance. This results in undertrained experts and underutilized capacity: experts are loaded into memory but provide little value if they are rarely selected, consuming resources without contributing effectively. In addition, when experts are distributed across multiple GPUs through expert parallelization, an uneven token distribution can create bottlenecks if certain GPUs receive significantly more tokens than others. To mitigate these issues, techniques like <b>Noisy Top-k gating</b> with Gaussian noise are used to add randomness and prevent the same experts from being repeatedly selected.
 
-![Noisy Top-k gating with Gaussian noise.](/assets/images/noisy-topk-gating.png)
+<div class="img-small">
+
+![Noisy Top-k gating with Gaussian noise](/assets/images/noisy-topk-gating.png)
 *Noisy Top-k gating with Gaussian noise*
 <!-- Source: https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-mixture-of-experts -->
 
+</div>
+
 Another strategy is the use of an <b>auxiliary loss</b> that encourages balanced expert utilization. This loss sums the probability distributions for each expert across the entire batch and computes a coefficient of variation (CV) to measure how unevenly tokens are distributed. Minimizing the CV score ensures that all experts receive roughly the same number of training examples, improving overall model robustness.
 
-![Sum expert probability per token over a batch.](/assets/images/moe-auxiliary-loss.png)
+<div class="img-small">
+
+![Sum expert probability per token over a batch](/assets/images/moe-auxiliary-loss.png)
 <!-- Source: https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-mixture-of-experts -->
+
+</div>
 
 <b>Expert capacity</b> is another consideration. Each expert can only process a limited number of tokens per batch. When capacity is exceeded, overflow tokens may be routed to the next expert, deferred to the next layer, or dropped entirely (which could hurt performance).
 
 An alternative approach called <b>Expert Choice routing</b> flips the paradigm: instead of tokens choosing experts, experts select the tokens they want to process from the entire batch. Each expert examines all tokens in the batch and picks the top candidates within its fixed capacity. 
 
-![Token choice vs expert choice routing.](/assets/images/token-expert-choice-routing.png)
+<div class="img-medium">
+
+![Token choice vs expert choice routing](/assets/images/token-expert-choice-routing.png)
 <!-- Source: https://arxiv.org/pdf/2202.09368 -->
+
+</div>
 
 These represent just some of the techniques developed to address routing challenges in MoE architectures. Many other approaches exist, and researchers continue to develop new methods to improve expert utilization, reduce communication overhead, and enhance the efficiency of sparse models.
 
@@ -71,7 +83,7 @@ While Mixture-of-Experts models have become a cornerstone of scaling strategies 
 
 The router in these setups can be trained on a calibration dataset or even replaced with deterministic rules, such as domain classification. However, because the experts were never co-adapted during training, this approach introduces quirks: routing isn’t jointly optimized, switching experts mid-sequence can break coherence, and experts may have different styles or output distributions. To make this work, all merged models must share the same architecture and tokenizer, which limits flexibility. Performance is generally suboptimal compared to fully trained MoEs, but the trade‑off is simplicity: FrankenMoEs are far easier to build because they reuse existing pretrained models instead of requiring the costly, unstable process of training experts and routers jointly from scratch. This makes them a nice playground for experimentation despite their limitations. Besides, who doesn’t secretly want to create their own little Frankenstein monster?
 
-One practical way to build FrankenMoEs is with Mergekit, a Python library designed for model merging. Mergekit provides tools to fuse different models into a single composite, making it possible to route across multiple expert domains. It’s worth noting that this is just one way to combine models—model merging itself is a much broader topic with techniques that go far beyond MoE.
+One practical way to build FrankenMoEs is with Mergekit, a Python library designed for model merging. Mergekit provides tools to fuse different models into a single composite, making it possible to route across multiple expert domains. It’s worth noting that this is just one way to combine models - model merging itself is a much broader topic with techniques that go far beyond MoE.
 
 ![FrankenMoE is created by taking the FFNs from the same layer position across multiple pre-trained models and combining them into a single Mixture-of-Experts layer. For example, all Layer 1 FFNs from Model 1, Model 2, and Model 3 are grouped together as experts in Layer 1 of the FrankenMoE. The same process is repeated for Layer 2, where all Layer 2 FFNs from the three models become experts in Layer 2 of the FrankenMoE, and so on for every subsequent layer.](/assets/images/frankenmoes.png)
 *FrankenMoE is created by taking the FFNs from the same layer position across multiple pre-trained models and combining them into a single Mixture-of-Experts layer. For example, all Layer 1 FFNs from Model 1, Model 2, and Model 3 are grouped together as experts in Layer 1 of the FrankenMoE. The same process is repeated for Layer 2, where all Layer 2 FFNs from the three models become experts in Layer 2 of the FrankenMoE, and so on for every subsequent layer.*
