@@ -18,7 +18,7 @@ As a result, organizations are grappling with questions like:
 
 This is where GenAIOps comes into play - offering structure and best practices to streamline the development of GenAI applications. In this blogpost, we introduce the building blocks along with the Azure services that support the implementation of such a GenAIOps workflow. 
 
-![High-level architecture with building blocks along with Azure Services and how they interconnect](/assets/images/genaiops.jpg)
+![High-level architecture with building blocks along with Azure Services and how they interconnect](/assets/images/genaiops/genaiops.jpg)
 *High-level architecture illustrating how different Azure services support the development, evaluation, and operationalization of GenAI applications*
 
 This architecture provides a foundation for applying GenAIOps principles, which will be explored further in this post.

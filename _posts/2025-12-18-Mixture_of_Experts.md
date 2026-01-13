@@ -25,13 +25,13 @@ Having outlined the broader architectural improvements, let’s now dive deeper 
 
 At the architectural level, the dense feed-forward network (FFN) layers found in traditional Transformers are replaced by MoE layers. These layers consist of multiple experts, each being a feed-forward subnetwork, and a gating mechanism that determines which experts should process a given token. By activating only a few experts per input rather than all of them, MoE introduces conditional computation, enabling models to scale to billions or even trillions of parameters without a proportional increase in compute cost. This design makes it possible to train and deploy extremely large models while keeping resource requirements manageable.
 
-![Left: Traditional dense transformer architecture showing decoder blocks and the FFNN within these blocks. Right: MoE model in which the FFNN per decoder block is replaced by a MoE layer, comprising of multiple expert FFNNs and a routing mechanism](/assets/images/transformer-moe-architecture-comparison.png)
+![Left: Traditional dense transformer architecture showing decoder blocks and the FFNN within these blocks. Right: MoE model in which the FFNN per decoder block is replaced by a MoE layer, comprising of multiple expert FFNNs and a routing mechanism](/assets/images/MoE/transformer-moe-architecture-comparison.png)
 <!-- Source: https://cameronrwolfe.substack.com/p/moe-llms -->
 *Comparison of traditional Transformer architecture with dense FFN layers versus Mixture-of-Experts (MoE) architecture, where FFN layers are replaced by sparse MoE layers using expert routing.*
 
 A key advantage of MoE is that each expert can specialize in certain token patterns, linguistic structures, or domain-specific knowledge. This specialization allows the model to capture diverse knowledge without redundancy and improves overall efficiency. An additional architectural enhancement is the shared expert, which is always activated alongside the selected sparse experts. This shared expert captures common knowledge across tasks, reducing duplication and allowing routed experts to focus on more specialized, non-overlapping areas. For example, Qwen3-Next follows this approach, combining ten routed experts and one shared expert.
 
-![Left: MoE architecture with 16 routed experts and one shared expert. Right: Experts specializing in linguistic concepts](/assets/images/moe-expert-type.png)
+![Left: MoE architecture with 16 routed experts and one shared expert. Right: Experts specializing in linguistic concepts](/assets/images/MoE/moe-expert-type.png)
 *Left: MoE architecture with 16 routed experts and one shared expert. Right: Experts specializing in linguistic concepts*
 <!-- Source: https://medium.com/@redamahmoud722/mixture-of-experts-moe-c26d80864acc -->
 
@@ -41,7 +41,7 @@ While MoE brings significant benefits, it also introduces trade-offs. On the pos
 
 A critical component of Mixture-of-Experts architectures is the routing mechanism, which determines which experts process each token during training and inference. This routing is handled by a lightweight gating network, typically a feed-forward layer followed by a SoftMax, that outputs probabilities for each expert. Based on these probabilities, the model selects the top experts for each token. Importantly, the router and the experts are jointly trained, ensuring that both the gating decisions and expert parameters evolve together during optimization.
 
-![Illustration of a Mixture-of-Experts (MoE) layer showing the routing process. A lightweight gating network (FFNN + Softmax) computes probabilities for each expert. The top expert is selected and activated based on its probability score (e.g., 0.45), while others remain inactive. The selected expert processes the token, and its output is weighted by the activation probability before passing to the next layer.](/assets/images/moe-layer.png)
+![Illustration of a Mixture-of-Experts (MoE) layer showing the routing process. A lightweight gating network (FFNN + Softmax) computes probabilities for each expert. The top expert is selected and activated based on its probability score (e.g., 0.45), while others remain inactive. The selected expert processes the token, and its output is weighted by the activation probability before passing to the next layer.](/assets/images/MoE/moe-layer.png)
 *Illustration of a Mixture-of-Experts (MoE) layer showing the routing process. A lightweight gating network (FFNN + Softmax) computes probabilities for each expert. The top expert is selected and activated based on its probability score (e.g., 0.45), while others remain inactive. The selected expert processes the token, and its output is weighted by the activation probability before passing to the next layer.*
 <!-- Source: https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-mixture-of-experts -->
 
@@ -49,7 +49,7 @@ However, routing introduces several challenges. Without constraints, the router 
 
 <div class="img-small">
 
-![Noisy Top-k gating with Gaussian noise](/assets/images/noisy-topk-gating.png)
+![Noisy Top-k gating with Gaussian noise](/assets/images/MoE/noisy-topk-gating.png)
 *Noisy Top-k gating with Gaussian noise*
 <!-- Source: https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-mixture-of-experts -->
 
@@ -59,7 +59,7 @@ Another strategy is the use of an <b>auxiliary loss</b> that encourages balanced
 
 <div class="img-small">
 
-![Sum expert probability per token over a batch](/assets/images/moe-auxiliary-loss.png)
+![Sum expert probability per token over a batch](/assets/images/MoE/moe-auxiliary-loss.png)
 <!-- Source: https://newsletter.maartengrootendorst.com/p/a-visual-guide-to-mixture-of-experts -->
 
 </div>
@@ -70,7 +70,7 @@ An alternative approach called <b>Expert Choice routing</b> flips the paradigm: 
 
 <div class="img-medium">
 
-![Token choice vs expert choice routing](/assets/images/token-expert-choice-routing.png)
+![Token choice vs expert choice routing](/assets/images/MoE/token-expert-choice-routing.png)
 <!-- Source: https://arxiv.org/pdf/2202.09368 -->
 
 </div>
@@ -85,13 +85,13 @@ The router in these setups can be trained on a calibration dataset or even repla
 
 One practical way to build FrankenMoEs is with Mergekit, a Python library designed for model merging. Mergekit provides tools to fuse different models into a single composite, making it possible to route across multiple expert domains. It’s worth noting that this is just one way to combine models - model merging itself is a much broader topic with techniques that go far beyond MoE.
 
-![FrankenMoE is created by taking the FFNs from the same layer position across multiple pre-trained models and combining them into a single Mixture-of-Experts layer. For example, all Layer 1 FFNs from Model 1, Model 2, and Model 3 are grouped together as experts in Layer 1 of the FrankenMoE. The same process is repeated for Layer 2, where all Layer 2 FFNs from the three models become experts in Layer 2 of the FrankenMoE, and so on for every subsequent layer.](/assets/images/frankenmoes.png)
+![FrankenMoE is created by taking the FFNs from the same layer position across multiple pre-trained models and combining them into a single Mixture-of-Experts layer. For example, all Layer 1 FFNs from Model 1, Model 2, and Model 3 are grouped together as experts in Layer 1 of the FrankenMoE. The same process is repeated for Layer 2, where all Layer 2 FFNs from the three models become experts in Layer 2 of the FrankenMoE, and so on for every subsequent layer.](/assets/images/MoE/frankenmoes.png)
 *FrankenMoE is created by taking the FFNs from the same layer position across multiple pre-trained models and combining them into a single Mixture-of-Experts layer. For example, all Layer 1 FFNs from Model 1, Model 2, and Model 3 are grouped together as experts in Layer 1 of the FrankenMoE. The same process is repeated for Layer 2, where all Layer 2 FFNs from the three models become experts in Layer 2 of the FrankenMoE, and so on for every subsequent layer.*
 
 ### Not a model router
 
 It’s important to note that Mixture-of-Experts is not the same as model routing. MoE operates inside a single model, routing tokens to different experts within its architecture. In contrast, model routing works at a much higher level, directing entire requests across fully separate models or services, treating each model as an “expert.” This difference in granularity and integration leads to very different design trade-offs. The table below summarizes the key distinctions between the traditional MoE, FrankenMoE, and Model Routing.
 
-![Comparison table of classic MoE vs FrankenMoE and Model routing.](/assets/images/moe-vs-routing-table.png)
+![Comparison table of classic MoE vs FrankenMoE and Model routing.](/assets/images/MoE/moe-vs-routing-table.png)
 
 Mixture-of-Experts architectures represent a fundamental shift in how we approach model scaling. Rather than simply making models denser and more computationally expensive, MoE introduces sparsity as a first-class design principle. By activating only a subset of experts per token, these architectures achieve an appealing balance: the efficiency of smaller models during inference with the capacity of much larger ones. However, as we've explored, this efficiency comes with its own set of challenges: from routing imbalances to memory requirements to training instability. The ongoing research into better routing mechanisms, load balancing techniques, and architectural innovations like shared experts shows that MoE remains an active and evolving area. As these challenges are addressed, MoE architectures are likely to become even more prevalent in the next generation of language models.
