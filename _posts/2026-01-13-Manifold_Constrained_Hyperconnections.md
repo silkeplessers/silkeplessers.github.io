@@ -2,7 +2,7 @@
 layout: post
 title: "Manifold-Constrained Hyper-Connections - Rethinking Residual Connections "
 date: 2026-01-13
-categories: [Deep Learning, Transformers]
+categories: [Deep-Learning, Transformers]
 tags: [Deep Learning, Transformer, Residual Connections, Hyper-Connections, Manifold-Constrained Hyper-Connections, Deepseek]
 excerpt: "Training deep neural networks should be straightforward: stack more layers, get better results. Reality? Gradients vanish or explode, making depth your enemy. This post traces the evolution from ResNet's breakthrough to DeepSeek's Manifold-Constrained Hyper-Connections - an architecture that keeps stability while dramatically expanding what neural networks can learn."
 ---
