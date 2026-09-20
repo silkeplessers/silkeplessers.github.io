@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Speculative Decoding: The Race to Break the Autoregressive Bottleneck"
+title: "Guess First, Verify Fast: The Evolution of Speculative Decoding"
 date: 2026-09-21
 categories: [Transformers, Inference Optimization]
 tags: [Transformer, Speculative Decoding, EAGLE, EAGLE-3, MTP, DFlash, DFlash 2, DSpark]
@@ -11,6 +11,8 @@ Over the past few years, the AI industry has been obsessed with model quality. E
 
 For many production systems, the question is no longer whether a model can answer a question correctly. Instead, the challenge is whether it can do so quickly and cheaply enough to serve millions of requests. As models grow larger and application adoption increases, latency and infrastructure costs can quickly become more important than marginal improvements in benchmark performance. A model that delivers the same answer twice as fast can often create more business value than a model that is only slightly more capable.
 
+This focus on efficiency has led researchers to reexamine the biggest remaining bottleneck in LLM inference: autoregressive generation itself. Rather than merely accelerating individual decoding steps, the goal has increasingly become finding ways to generate more tokens with fewer sequential operations.
+
 This shift in priorities helps explain why speculative decoding has moved from a niche research topic to one of the hottest areas in LLM inference. Over the last two years, a growing number of model families have started shipping with built-in support for speculative decoding techniques, particularly through Multi-Token Prediction (MTP) heads. At the same time, inference frameworks such as vLLM, SGLang, and TensorRT-LLM have rapidly expanded their support for speculative decoding algorithms, making techniques like EAGLE-3, DFlash, and DSpark practical deployment options rather than purely academic research projects.
 
 The reason for this interest is simple. Despite all of the progress in model architecture, modern language generation remains constrained by a limitation that has existed since the earliest GPT-style models: text generation is still fundamentally autoregressive. Every generated token depends on the token before it. No matter how many GPUs are available, the next token cannot be produced until the current token exists. This seemingly simple constraint has become one of the most significant barriers to achieving lower latency and higher throughput. Speculative decoding is, at its heart, an attempt to work around that limitation without changing the final answer produced by the model.
@@ -19,13 +21,20 @@ The reason for this interest is simple. Despite all of the progress in model arc
 
 To understand why speculative decoding has become so important, it is worth taking a closer look at how LLM inference actually works.
 
-When a user submits a prompt, the model first processes the entire input sequence. This stage, commonly referred to as the **prefill phase**, is relatively efficient. During prefill, the model can process many tokens simultaneously, allowing modern GPUs to exploit their highly parallel architecture. Large batches of computation can be executed at once, keeping hardware utilization high.
+When a user submits a prompt, the model first processes the entire input sequence. This stage, commonly referred to as the prefill phase, is relatively efficient. During prefill, the model can process many tokens simultaneously, allowing modern GPUs to exploit their highly parallel architecture. Large batches of computation can be executed at once, keeping hardware utilization high.
 
 The situation changes dramatically when generation begins.
 
-Once the model starts producing an answer, it enters the **decode phase**. Instead of processing entire sequences, the model now generates one token at a time. Each generated token is appended to the sequence and becomes part of the context for generating the next token.
+Once the model starts producing an answer, it enters the decode phase. Instead of processing entire sequences, the model now generates one token at a time. Each generated token is appended to the sequence and becomes part of the context for generating the next token.
 
 This means that generating a response containing 200 tokens requires roughly 200 decoding iterations. Every iteration involves loading model weights, performing transformer computations, updating attention caches, and producing the next token prediction. Even though the operation is conceptually simple, it becomes remarkably expensive when repeated hundreds or thousands of times.
+
+<div class="img-medium">
+
+![Infographic comparing LLM prefill and decode phases, highlighting parallel prompt processing versus sequential token generation and explaining why decode dominates inference latency..](/assets/images/Speculative_Decoding/prefill_decode.png)
+*LLM inference workflow showing why prefill is highly parallel while decode becomes the primary performance bottleneck during autoregressive generation.*
+
+</div>
 
 The problem is not merely computational. For modern frontier models, decoding is often memory-bandwidth bound rather than compute-bound. In other words, the GPU spends an enormous amount of time moving model parameters and KV-cache data through memory systems instead of performing arithmetic operations. As model sizes continue growing, this memory movement becomes increasingly expensive.
 
@@ -43,8 +52,12 @@ Speculative decoding exploits this predictability. Rather than forcing the large
 
 The important detail is that the target model always remains the final authority. Incorrect guesses are rejected and generation continues normally. The speculative component is therefore not replacing the target model. It is merely helping the target model move faster when future tokens are sufficiently predictable.
 
+<div class="img-medium">
+
 ![The autoregressive bottleneck in LLM inference. Traditional decoding generates one token at a time, whereas speculative decoding can accept multiple correctly predicted tokens at once, improving throughput and reducing latency without changing the model's output.](/assets/images/Speculative_Decoding/autoregressive_vs_specdec.png)
 *The autoregressive bottleneck in LLM inference. Traditional decoding generates one token at a time, whereas speculative decoding can accept multiple correctly predicted tokens at once, improving throughput and reducing latency without changing the model's output distribution.*
+
+</div>
 
 This distinction is crucial because it explains why speculative decoding can often provide significant speedups without degrading output quality. The final output still comes from the same target model. Speculation reduces the number of sequential target-model decoding rounds. The target still evaluates the drafted positions, but it can score them together in one verification pass, trading additional parallel work for fewer latency-dominating sequential passes.
 
@@ -82,8 +95,12 @@ EAGLE-3 also changes how the drafter is trained, using a technique called traini
 
 The goal is not necessarily to speculate further ahead. The goal is to make each speculative prediction more accurate. In practice, this translates into longer accepted runs during verification. More drafted tokens match what the target model would have generated anyway, reducing wasted computation and improving end-to-end throughput.
 
+<div class="img-medium">
+
 ![Different transformer layers capture different types of information. EAGLE-3 leverages these richer representations to generate proposals that more closely match the target model's final output.](/assets/images/Speculative_Decoding/eagle_eagle3.png)
 *Different transformer layers capture different types of information. EAGLE-3 leverages these richer representations to generate proposals that more closely match the target model's final output.*
+
+</div>
 
 ## Multi-Token Prediction: Native Speculation
 
@@ -93,8 +110,12 @@ The exact implementation varies across architectures. Some models attach multipl
 
 These additional predictions can improve training efficiency, but they also create an interesting opportunity during inference. These future-token forecasts can also be reused as speculative proposals during inference, turning the model itself into a built-in drafting mechanism. The target model then verifies those proposals in the same way as other speculative decoding systems.
 
+<div class="img-medium">
+
 ![Infographic titled “MTP Speculative Decoding Flow.” A prompt and context input feeds into a target model augmented with MTP heads. The model generates a sequential drafting chain of tokens labeled T+1, T+2, T+3, and T+4, with T+1 shown as the first generated token and later tokens shown as speculative draft tokens. The drafted sequence is sent to a target verification stage. Verification branches into two outcomes: a green “Accept Tokens” path that appends accepted tokens to the output, and an orange “Reject → Use Target Token” path indicating that the target model’s own token replaces the first rejected draft token. A note explains that the correction token comes directly from the verification pass and does not require an additional verification pass. Another note states that MTP architectures may perform drafting sequentially or in parallel depending on the implementation.](/assets/images/Speculative_Decoding/MTP.png)
 *MTP speculative decoding extends a target model with auxiliary prediction heads that draft multiple future tokens. The target model then verifies the drafted sequence in a single pass, accepting correct tokens and replacing the first rejected token with its own prediction.*
+
+</div>
 
 MTP can therefore be viewed as a form of native speculation. Instead of relying on an entirely separate drafting model, the ability to propose future continuations is learned directly during training. That said, MTP should not be confused with fully parallel drafting approaches such as DFlash. Depending on the architecture, generating those future predictions may still involve sequential computation. The distinction between parallel and autoregressive drafting therefore depends on the specific MTP design rather than the training objective itself.
 
@@ -124,8 +145,12 @@ A low-rank Markov head biases each draft position's prediction using the token t
 
 The appeal is that DSpark gets most of the benefit of sequential awareness back cheaply: it's still one forward pass per block, just with a light correction layered on top. Reported results show this closing a meaningful chunk of the gap in accepted draft length compared with both plain DFlash and autoregressive-style drafters, and translating into substantially faster per-user generation in production serving.
 
+<div class="img-medium">
+
 ![DFlash maximizes parallelism by predicting every draft position independently. DSpark preserves the same single-pass drafting approach while reintroducing lightweight token dependencies, improving acceptance rates and extending accepted token runs during verification.](/assets/images/Speculative_Decoding/dflash_dspark.png)
 *DFlash maximizes parallelism by predicting every draft position independently. DSpark preserves the same single-pass drafting approach while reintroducing lightweight token dependencies, improving acceptance rates and extending accepted token runs during verification.*
+
+</div>
 
 ### Not the end of the story
 
